@@ -9,6 +9,11 @@ var connectSettings = {
 var thisNode = {
     dap: 'none'
 }
+
+// use this to keep track of incoming username and TTS for populating the incoming data table
+var receivedData = {
+
+}
 var ws;
 
 localforage.getItem('connectSettings').then(function(value) {
@@ -114,7 +119,39 @@ connectButton.addEventListener("click", function() {
                         //     if (err) console.error(err);
                         // }); 
                         if(connectSettings.printIncoming == true){
+                            
                             console.log('incoming: ', msg.addressPattern, msg.typeTagString)
+                            var senderName = msg.addressPattern.split('/')[1]
+                            var AP_ID = msg.addressPattern.replace(/\//g, '-')
+                            var newDate = new Date()
+                            var timeStamp = `${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}:${newDate.getMilliseconds()}`
+                            if(!receivedData[senderName]){
+                                receivedData[senderName] = {}
+                                
+    
+                            } else {
+                                if(!receivedData[senderName][msg.addressPattern]){
+                                    receivedData[senderName][msg.addressPattern] = true
+                                    var markup = `<tr>
+                                        <td>${senderName}</td>
+                                        <td>${msg.addressPattern}</td>
+                                        <td id="${AP_ID}">${msg.typeTagString}</td>
+                                        <td id="${AP_ID}_ts">${timeStamp}</td>
+                                    </tr>`;
+                                    $("#incomingDataTable").append(markup);
+                                } else {
+                                    // update the table row
+                                    $(`#${AP_ID}`).text(msg.typeTagString);
+                                    $(`#${AP_ID}_ts`).text(timeStamp);
+                                }
+                                
+                                
+                                
+                            }
+                            
+                            console.log(receivedData)
+
+                           
                         }   
                         // if the local ws server is enabled at startup, pack the OSC message as a json object
                         // if(localWSstate == true){
