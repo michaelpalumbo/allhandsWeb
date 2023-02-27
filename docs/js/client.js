@@ -10,10 +10,12 @@ var thisNode = {
     dap: 'none'
 }
 
-// use this to keep track of incoming username and TTS for populating the incoming data table
-var receivedData = {
+// use this to keep track of incoming username and APs for populating the incoming data table
+var receivedAddressPatterns = {
 
 }
+
+
 var ws;
 
 localforage.getItem('connectSettings').then(function(value) {
@@ -49,7 +51,7 @@ connectButton.addEventListener("click", function() {
     connectSettings.serverType = document.getElementById("serverType").value;
     switch(connectSettings.serverType){
         case 'Public':
-            connectSettings.host = "ws://allhands-stable.herokuapp.com/8081"
+            connectSettings.host = "wss://allhands-stable.herokuapp.com/8081"
         break
         default: console.log('no switch case for chosen server type')
     }
@@ -125,13 +127,13 @@ connectButton.addEventListener("click", function() {
                             var AP_ID = msg.addressPattern.replace(/\//g, '-')
                             var newDate = new Date()
                             var timeStamp = `${newDate.getHours()}:${newDate.getMinutes()}:${newDate.getSeconds()}:${newDate.getMilliseconds()}`
-                            if(!receivedData[senderName]){
-                                receivedData[senderName] = {}
+                            if(!receivedAddressPatterns[senderName]){
+                                receivedAddressPatterns[senderName] = {}
                                 
     
                             } else {
-                                if(!receivedData[senderName][msg.addressPattern]){
-                                    receivedData[senderName][msg.addressPattern] = true
+                                if(!receivedAddressPatterns[senderName][msg.addressPattern]){
+                                    receivedAddressPatterns[senderName][msg.addressPattern] = true
                                     var markup = `<tr>
                                         <td>${senderName}</td>
                                         <td>${msg.addressPattern}</td>
@@ -148,9 +150,6 @@ connectButton.addEventListener("click", function() {
                                 
                                 
                             }
-                            
-                            console.log(receivedData)
-
                            
                         }   
                         // if the local ws server is enabled at startup, pack the OSC message as a json object
